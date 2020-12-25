@@ -24,7 +24,7 @@ services:
     expose:
       - ${REACT_APP_PORT}
     ports:
-      - "${REACT_APP_PORT}:${REACT_APP_PORT}"
+      - ${REACT_APP_PORT}:3000
     volumes:
       - ./client/src:/srv/app/chatbot-food-video/src
       - ./client/public:/srv/app/chatbot-food-video/public
