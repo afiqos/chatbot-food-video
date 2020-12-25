@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Avatar, IconButton } from "@material-ui/core";
 import ChatIcon from '@material-ui/icons/Chat';
 import SendIcon from '@material-ui/icons/Send';
@@ -34,17 +34,29 @@ function Chat() {
   });
 
   const classes = useStyles();
-  
-  const bull = <span className={classes.bullet}>•</span>;
   const [input, setInput] = useState("");
+  const [botOutput, setBotOutput] = useState("");
+
+
+  useEffect(()=> {
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({messageInput: input})
+      };
+
+      fetch('localhost:8000/sendMessage/', requestOptions).then(response => response.json()).then(data => setBotOutput(data.id));
+
+  }, []);
 
   const sendMessage = (e) => {
     e.preventDefault();
-    console.log("You typed >>> ", input);
 
+    
+        
+    // message return { "botOutput" : "______data_____" }
     setInput("");
   };
-
 
   const exportChat = (e) => {
     console.log("Exporting Chat");
@@ -80,7 +92,7 @@ function Chat() {
 
         <p className={`chat__message `}>
           <span className="chat__name"> Bot </span>
-          sent from bot
+          {botOutput}
           <span className="chat__timestamp">Timestamp</span>
         </p>
 
