@@ -1,7 +1,6 @@
 const mysql = require('mysql')
 
 const mySqlClient = mysql.createConnection({
-    // host: 'localhost',
     host: 'host.docker.internal',
     user: 'root',
     password: 'password',

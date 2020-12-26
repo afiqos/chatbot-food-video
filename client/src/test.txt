@@ -1,0 +1,64 @@
+<p className={`chat__message `}>
+<span className="chat__name"> Bot </span>
+How are you feeling today?
+<span className="chat__timestamp">{new Date().toUTCString()}</span>
+</p>
+
+
+<p className={`chat__message chat__receiver`}>
+<span className="chat__name"> You </span>
+send from user
+<span className="chat__timestamp">Timestamp</span>
+</p>
+
+<p className={`chat__message `}>
+<span className="chat__name"> Bot </span>
+<Card className={classes.root} variant="outlined">
+  <CardContent>
+    <Typography
+      className={classes.title}
+      color="textSecondary"
+      gutterBottom
+    >
+      {botOutput}
+    </Typography>
+
+    <iframe
+      src="https://www.youtube.com/embed/E7wJTI-1dvQ"
+      frameBorder="0"
+      allow="autoplay; encrypted-media"
+      allowFullScreen
+      title="video"
+    />
+
+    <Typography variant="body2" component="p">
+      Video description or anything
+      <br />
+      {'"a benevolent smile"'}
+    </Typography>
+  </CardContent>
+  <CardActions>
+    <Button size="small">Link to go to page </Button>
+  </CardActions>
+</Card>
+<span className="chat__timestamp">Timestamp</span>
+</p>
+
+
+const useStyles = makeStyles({
+  root: {
+    minWidth: 275,
+  },
+  bullet: {
+    display: 'inline-block',
+    margin: '0 2px',
+    transform: 'scale(0.8)',
+  },
+  title: {
+    fontSize: 14,
+  },
+  pos: {
+    marginBottom: 12,
+  },
+});
+const classes = useStyles();
