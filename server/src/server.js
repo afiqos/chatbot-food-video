@@ -121,7 +121,7 @@ app.post('/sendFood', (req, res) => {
                 const videoDuration = result[0].duration_sec;
                 console.log(`Fetched duration_sec: ${videoDuration}`);
                 console.log(`categoryId: ${YoutubeInputs.categoryId}`)
-                
+                res.json({ botOutput: SUCCESS });
                 // perform youtube api query
 
             });
@@ -143,7 +143,7 @@ app.post('/sendFood', (req, res) => {
                 const videoDuration = result[0].duration_sec;
                 console.log(`Fetched duration_sec: ${videoDuration}`);
                 console.log(`categoryId: ${YoutubeInputs.categoryId}`)
-
+                res.json({ botOutput: SUCCESS });
                 // perform youtbe api query
 
             });
@@ -151,8 +151,7 @@ app.post('/sendFood', (req, res) => {
 
         default:
             console.log("Food not understood");
-            foodResponse = FAILURE;
-            res.json({ botOutput: foodResponse });
+            res.json({ botOutput: FAILURE });
     }
 
 });
