@@ -1,60 +1,98 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import { Avatar, IconButton } from "@material-ui/core";
 import ChatIcon from '@material-ui/icons/Chat';
 import SendIcon from '@material-ui/icons/Send';
 
-import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-
 
 import chatboticon from './resources/chatboticon.png'
 import './Chat.css';
 
 function Chat() {
 
-  const useStyles = makeStyles({
-    root: {
-      minWidth: 275,
-    },
-    bullet: {
-      display: 'inline-block',
-      margin: '0 2px',
-      transform: 'scale(0.8)',
-    },
-    title: {
-      fontSize: 14,
-    },
-    pos: {
-      marginBottom: 12,
-    },
-  });
-
-  const classes = useStyles();
   const [input, setInput] = useState("");
-  const [botOutput, setBotOutput] = useState("");
 
+  let chatState = 0;
+  let botOutput = "";
+  let chatMessages = [{
+    "message":"How are you feeling today?",
+    "user": "Bot",
+    "type":"normal", // link
+    "state": chatState
+  }]
 
-  useEffect(()=> {
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify({messageInput: input})
+  const [messages, setMessages] = useState(chatMessages);
+  
+  //getYoutubeVideo
+
+  const request = async (methodName) => {
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({messageInput: input})
+    };
+
+    const response = await fetch(`http://localhost:8000/${methodName}`, requestOptions);
+    const json = await response.json();
+    botOutput = json.botOutput;
+    
+    console.log("Output of botOutput:" )
+    if (botOutput === "success"){
+      chatState = 1;
+      let botMessage = {
+        "message": `You are currently ${input}! What are you eating?`,
+        "user": "Bot",
+        "type":"normal",
+        "state": chatState
       };
-
-      fetch('localhost:8000/sendMessage/', requestOptions).then(response => response.json()).then(data => setBotOutput(data.id));
-
-  }, []);
+      setMessages(messages => [...messages, botMessage]);
+      
+    }else{
+      // remain state and reprompt message from bot 
+      let botMessage = {
+        "message": `Are you dumb, enter the correct emotion!`,
+        "user": "Bot",
+        "type":"normal",
+        "state": chatState
+      };
+      setMessages(messages => [...messages, botMessage]);
+    }
+  }
 
   const sendMessage = (e) => {
     e.preventDefault();
-
+    console.log(input)
     
-        
-    // message return { "botOutput" : "______data_____" }
+    let userMessage = {
+      "message": input,
+      "user": "You",
+      "type":"normal",
+      "state": chatState
+    };
+    setMessages(messages => [...messages, userMessage]);
+    
+    switch(chatState){
+      case 0:
+        // emotions
+        request('sendEmotion');
+
+        break;
+      case 1:
+        // food 
+        break;
+      case 2:
+        // ....
+        break;
+      default:
+        // ....
+        break; 
+    }
+
     setInput("");
   };
 
@@ -75,7 +113,6 @@ function Chat() {
         <div className="chat__headerRight">
           <Button
             variant="contained"
-            className={classes.button}
             startIcon={<ChatIcon />}
           >
             Export
@@ -84,50 +121,15 @@ function Chat() {
       </div>
 
       <div className="chat__body">
-        <p className={`chat__message chat__receiver`}>
-          <span className="chat__name"> You </span>
-          send from user
-          <span className="chat__timestamp">Timestamp</span>
-        </p>
 
-        <p className={`chat__message `}>
-          <span className="chat__name"> Bot </span>
-          {botOutput}
-          <span className="chat__timestamp">Timestamp</span>
-        </p>
+        {messages.map((messages) => (
+          <p className={`chat__message ${messages.user === "You" && "chat__receiver"}`}>
+            <span className="chat__name"> {messages.user} </span>
+            {messages.message}
+            <span className="chat__timestamp">{new Date().toUTCString()}</span>
+          </p>
+        ))}
 
-        <p className={`chat__message `}>
-          <span className="chat__name"> Bot </span>
-          <Card className={classes.root} variant="outlined">
-            <CardContent>
-              <Typography
-                className={classes.title}
-                color="textSecondary"
-                gutterBottom
-              >
-                Video Title
-              </Typography>
-
-              <iframe
-                src="https://www.youtube.com/embed/E7wJTI-1dvQ"
-                frameBorder="0"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                title="video"
-              />
-
-              <Typography variant="body2" component="p">
-                Video description or anything
-                <br />
-                {'"a benevolent smile"'}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button size="small">Link to go to page </Button>
-            </CardActions>
-          </Card>
-          <span className="chat__timestamp">Timestamp</span>
-        </p>
       </div>
 
       <div className="chat__footer">
@@ -143,7 +145,7 @@ function Chat() {
           </button>
         </form>
         <IconButton>
-          <SendIcon onClick={sendMessage}/>
+          <SendIcon onClick={sendMessage} />
         </IconButton>
       </div>
     </div>
