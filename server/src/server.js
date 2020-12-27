@@ -11,7 +11,7 @@ const bodyParser = require('body-parser')
 // const mongoUtil = require('./mongoUtil');
 // const { mongoClient } = require('./mongoUtil');
 const { mySqlClient } = require('./mysql_connection')
-const { callYoutubeApi } = require('./youtube_video_api');
+const { callYoutubeApi, YTDurationToSeconds } = require('./youtube_video_api');
 
 const app = express();
 
@@ -122,6 +122,7 @@ app.post('/sendFood', (req, res) => {
                 const videoDuration = result[0].duration_sec;
                 console.log(`Fetched duration_sec: ${videoDuration}`);
                 console.log(`categoryId: ${YoutubeInputs.categoryId}`)
+                YoutubeInputs.videoDuration = videoDuration;
                 res.json({ botOutput: SUCCESS });
                 // perform youtube api query
 
@@ -144,6 +145,7 @@ app.post('/sendFood', (req, res) => {
                 const videoDuration = result[0].duration_sec;
                 console.log(`Fetched duration_sec: ${videoDuration}`);
                 console.log(`categoryId: ${YoutubeInputs.categoryId}`)
+                YoutubeInputs.videoDuration = videoDuration;
                 res.json({ botOutput: SUCCESS });
                 // perform youtbe api query
 
@@ -165,20 +167,24 @@ app.post('/getYoutubeVideos', (req, res) => {
     callYoutubeApi(YoutubeInputs)
         .then((response) => {
             const { data } = response;
-            var obj = [];
+            var videos = [];
             data.items.forEach((item) => {
                 var video = {
                     title: item.snippet.title,
                     videoId: item.id,
-                    duration: item.contentDetails.duration
+                    duration: YTDurationToSeconds(item.contentDetails.duration)
                 };
-                obj.push(video);
+                videos.push(video);
 
             })
 
-            console.log("within server.js");
-            console.log(obj)
-            res.json(obj);
+            videos = videos.filter((item) => item.duration > parseInt(YoutubeInputs.videoDuration));            
+            videos.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
+
+            console.log("filtered & sorted videos");
+            console.log(videos);
+
+            res.json(videos[0]);
         }).catch((err) => console.log(err));
 });
 
