@@ -11,6 +11,7 @@ const bodyParser = require('body-parser')
 // const mongoUtil = require('./mongoUtil');
 // const { mongoClient } = require('./mongoUtil');
 const { mySqlClient } = require('./mysql_connection')
+const { callYoutubeApi } = require('./youtube_video_api');
 
 const app = express();
 
@@ -159,6 +160,27 @@ app.post('/sendFood', (req, res) => {
 const getCategoryId = (emotion) => {
 
 }
+
+app.post('/getYoutubeVideos', (req, res) => {
+    callYoutubeApi(YoutubeInputs)
+        .then((response) => {
+            const { data } = response;
+            var obj = [];
+            data.items.forEach((item) => {
+                var video = {
+                    title: item.snippet.title,
+                    videoId: item.id,
+                    duration: item.contentDetails.duration
+                };
+                obj.push(video);
+
+            })
+
+            console.log("within server.js");
+            console.log(obj)
+            res.json(obj);
+        }).catch((err) => console.log(err));
+});
 
 // probably make these the same as ones in .env?
 const PORT = 8000;
