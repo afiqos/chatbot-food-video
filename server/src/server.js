@@ -11,6 +11,7 @@ const bodyParser = require('body-parser')
 // const mongoUtil = require('./mongoUtil');
 // const { mongoClient } = require('./mongoUtil');
 const { mySqlClient } = require('./mysql_connection')
+const { callYoutubeApi, YTDurationToSeconds } = require('./youtube_video_api');
 
 const app = express();
 
@@ -121,6 +122,7 @@ app.post('/sendFood', (req, res) => {
                 const videoDuration = result[0].duration_sec;
                 console.log(`Fetched duration_sec: ${videoDuration}`);
                 console.log(`categoryId: ${YoutubeInputs.categoryId}`)
+                YoutubeInputs.videoDuration = videoDuration;
                 res.json({ botOutput: SUCCESS });
                 // perform youtube api query
 
@@ -143,6 +145,7 @@ app.post('/sendFood', (req, res) => {
                 const videoDuration = result[0].duration_sec;
                 console.log(`Fetched duration_sec: ${videoDuration}`);
                 console.log(`categoryId: ${YoutubeInputs.categoryId}`)
+                YoutubeInputs.videoDuration = videoDuration;
                 res.json({ botOutput: SUCCESS });
                 // perform youtbe api query
 
@@ -159,6 +162,31 @@ app.post('/sendFood', (req, res) => {
 const getCategoryId = (emotion) => {
 
 }
+
+app.post('/getYoutubeVideos', (req, res) => {
+    callYoutubeApi(YoutubeInputs)
+        .then((response) => {
+            const { data } = response;
+            var videos = [];
+            data.items.forEach((item) => {
+                var video = {
+                    title: item.snippet.title,
+                    videoId: item.id,
+                    duration: YTDurationToSeconds(item.contentDetails.duration)
+                };
+                videos.push(video);
+
+            })
+
+            videos = videos.filter((item) => item.duration > parseInt(YoutubeInputs.videoDuration));            
+            videos.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
+
+            console.log("filtered & sorted videos");
+            console.log(videos);
+
+            res.json(videos[0]);
+        }).catch((err) => console.log(err));
+});
 
 // probably make these the same as ones in .env?
 const PORT = 8000;
